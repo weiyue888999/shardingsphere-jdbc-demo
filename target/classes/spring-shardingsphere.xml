@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:mybatis-spring="http://mybatis.org/schema/mybatis-spring"
+       xmlns:shardingsphere="http://shardingsphere.apache.org/schema/shardingsphere/datasource"
+       xmlns:sharding="http://shardingsphere.apache.org/schema/shardingsphere/sharding"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+	http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring-1.2.xsd
+	http://shardingsphere.apache.org/schema/shardingsphere/datasource http://shardingsphere.apache.org/schema/shardingsphere/datasource/datasource.xsd
+	http://shardingsphere.apache.org/schema/shardingsphere/sharding http://shardingsphere.apache.org/schema/shardingsphere/sharding/sharding.xsd">
+
+
+    <context:property-placeholder location="classpath:jdbc_dev.properties"/>
+    <!-- 配置数据源 -->
+    <bean name="demo_ds" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close"  scope="singleton">
+        <property name="driverClassName" value="${jdbc_driver}" />
+        <property name="url" value="${jdbc_url}"/>
+        <property name="username" value="${jdbc_username}"/>
+        <property name="password" value="${jdbc_password}"/>
+    </bean>
+
+    <!-- 用户表的分表算法 -->
+    <sharding:sharding-algorithm id="inlineUserTableStrategyAlgorithm" type="INLINE">
+        <props>
+            <prop key="algorithm-expression">t_user_$->{id % 4}</prop>
+        </props>
+    </sharding:sharding-algorithm>
+
+    <!-- 订单表的分表算法  -->
+    <sharding:sharding-algorithm id="inlineOrderTableStrategyAlgorithm" type="INLINE">
+        <props>
+            <prop key="algorithm-expression">t_order_$->{uid % 4}</prop>
+        </props>
+    </sharding:sharding-algorithm>
+
+    <!-- 用户表的分表策略-->
+    <sharding:standard-strategy id="userTableStrategy" sharding-column="id" algorithm-ref="inlineUserTableStrategyAlgorithm" />
+
+    <!-- 订单表的分表策略 -->
+    <sharding:standard-strategy id="orderTableStrategy" sharding-column="uid" algorithm-ref="inlineUserTableStrategyAlgorithm" />
+
+    <sharding:key-generate-algorithm id="snowflakeAlgorithm" type="SNOWFLAKE">
+        <props>
+            <prop key="worker-id">1</prop>
+        </props>
+    </sharding:key-generate-algorithm>
+
+    <sharding:key-generate-strategy id="userKeyGenerator" column="id" algorithm-ref="snowflakeAlgorithm" />
+    <sharding:key-generate-strategy id="orderKeyGenerator" column="id" algorithm-ref="snowflakeAlgorithm" />
+
+    <sharding:rule id="shardingRule">
+        <sharding:table-rules>
+            <sharding:table-rule logic-table="t_user" actual-data-nodes="demo_ds.t_user_$->{0..3}" table-strategy-ref="userTableStrategy" key-generate-strategy-ref="userKeyGenerator" />
+            <sharding:table-rule logic-table="t_order" actual-data-nodes="demo_ds.t_order_$->{0..3}" table-strategy-ref="orderTableStrategy" key-generate-strategy-ref="orderKeyGenerator" />
+        </sharding:table-rules>
+        <sharding:binding-table-rules>
+            <sharding:binding-table-rule logic-tables="t_user,t_order"/>
+        </sharding:binding-table-rules>
+    </sharding:rule>
+
+    <shardingsphere:data-source id="shardingDataSource" data-source-names="demo_ds" rule-refs="shardingRule">
+        <props>
+            <prop key="sql-show">false</prop>
+        </props>
+    </shardingsphere:data-source>
+
+</beans>

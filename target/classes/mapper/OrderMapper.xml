@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.weiyue.mapper.OrderMapper">
+
+	<select id="getById" resultType="io.weiyue.entity.Order">
+		select * from t_order where id = #{id}
+	</select>
+
+	<select id="getListByUid" resultType="io.weiyue.entity.Order">
+		select * from t_order where uid = #{uid}
+	</select>
+
+	<insert id="insertOrder">
+		<selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="id"> SELECT LAST_INSERT_ID() </selectKey>
+		insert into t_order(id,uid,pid)values(#{id},#{uid},#{pid})
+	</insert>
+	
+	<delete id="deleteById">
+		delete from t_order where id = #{id}
+	</delete>
+
+</mapper> 
