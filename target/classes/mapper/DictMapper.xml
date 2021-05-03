@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.weiyue.mapper.DictMapper">
+
+	<resultMap id="baseResultMap" type="io.weiyue.entity.Dict">
+		<id column="id" property="id"></id>
+		<result column="type_name" property="typeName"></result>
+		<result column="name" property="name"></result>
+		<result column="value" property="value"></result>
+	</resultMap>
+
+	<select id="getByType" resultMap="baseResultMap">
+		select * from t_dict where type_name = #{type_name}
+	</select>
+
+	<insert id="insertDist">
+		insert into t_dict(id,type_name,name,value)values(#{id},#{typeName},#{name},#{value})
+	</insert>
+	
+	<delete id="deleteById">
+		delete from t_dict where id = #{id}
+	</delete>
+
+</mapper> 

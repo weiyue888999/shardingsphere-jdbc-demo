@@ -61,6 +61,9 @@
             <sharding:table-rule logic-table="t_user" actual-data-nodes="demo_ds.t_user_$->{0..3}" table-strategy-ref="userTableStrategy" key-generate-strategy-ref="userKeyGenerator" />
             <sharding:table-rule logic-table="t_order" actual-data-nodes="demo_ds.t_order_$->{0..3}" table-strategy-ref="orderTableStrategy" key-generate-strategy-ref="orderKeyGenerator" />
         </sharding:table-rules>
+        <sharding:broadcast-table-rules>
+            <sharding:broadcast-table-rule table="t_dict" />
+        </sharding:broadcast-table-rules>
         <sharding:binding-table-rules>
             <sharding:binding-table-rule logic-tables="t_user,t_order"/>
         </sharding:binding-table-rules>

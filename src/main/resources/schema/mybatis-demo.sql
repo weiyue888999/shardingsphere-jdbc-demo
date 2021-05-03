@@ -57,3 +57,11 @@ CREATE TABLE `t_order_3` (
 `pid`  bigint(11) UNSIGNED NOT NULL ,
 PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `t_dict` (
+  `id` BIGINT(20) UNSIGNED NOT NULL,
+  `type` VARCHAR(45) NULL,
+  `key` VARCHAR(45) NULL,
+  `val` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`)
+);

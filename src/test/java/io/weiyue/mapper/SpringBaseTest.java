@@ -8,7 +8,8 @@ import org.springframework.test.context.ContextConfiguration;
 @ContextConfiguration(locations =
         {
                 "classpath*:spring-mybatis.xml",
-                "classpath*:spring-shardingsphere.xml"
+                "classpath*:spring-shardingsphere.xml",
+                "classpath*:spring-datasource-single.xml"
         }
 )
 @RunWith(org.springframework.test.context.junit4.SpringJUnit4ClassRunner.class)
